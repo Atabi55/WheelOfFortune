@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 44171761edb24be45a1a1b88d5b86f00, type: 3}
-  m_Name: NewRewardPool
+  m_Name: BronzeRewardPool
   m_EditorClassIdentifier: Assembly-CSharp::RewardPool
   rewards:
   - {fileID: -5281350351124101004, guid: f3c7f7de96b6c1444a04c5bb871e3142, type: 3}
   - {fileID: 4658459910315597717, guid: 140e87a243f3b1744826683497bc03b2, type: 3}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: -64891307874697501, guid: 1a31758415f13da44b5d1e3e471b4629, type: 3}
+  - {fileID: -3594919974255840254, guid: 18297755efd408841a4fd8c4e420cf58, type: 3}
+  - {fileID: 7347395048315886003, guid: ce69c887af1c99145bff3ecbbcb6d8a8, type: 3}
+  - {fileID: -5733527284831398832, guid: 114631b8fc1137d44a63eefb085eb821, type: 3}
+  - {fileID: 7017515970967946093, guid: 440f05b023929c04fb1d943d61649441, type: 3}
+  - {fileID: 95983631781727552, guid: cb59769c6cc81634c96f950659c03ed1, type: 3}
