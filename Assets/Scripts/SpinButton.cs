@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class SpinButton : MonoBehaviour
 {
-    [SerializeField] private RevolverSpin revolverSpin;
+    [SerializeField] private RevolverController revolverController;
 
     private Button button;
 
@@ -18,14 +18,14 @@ public class SpinButton : MonoBehaviour
             return;
         }
 
-        if (revolverSpin == null)
+        if (revolverController == null)
         {
-            revolverSpin = FindFirstObjectByType<RevolverSpin>();
+            revolverController = FindFirstObjectByType<RevolverController>();
         }
 
-        if (revolverSpin == null)
+        if (revolverController == null)
         {
-            Debug.LogError("No RevolverSpin component found!", this);
+            Debug.LogError("No revolverController component found!", this);
             return;
         }
 
@@ -34,7 +34,7 @@ public class SpinButton : MonoBehaviour
 
     private void StartSpin()
     {
-        revolverSpin.Spin();
+        revolverController.Spin();
     }
 
     private void OnDestroy()
