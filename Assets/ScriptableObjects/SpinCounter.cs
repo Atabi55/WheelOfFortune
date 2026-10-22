@@ -6,13 +6,13 @@ using UnityEngine;
 )]
 public class SpinCounter : ScriptableObject
 {
-    [SerializeField] private int spinCount = 0;
+    [SerializeField] private int spinCount = 1;
 
     public int SpinCount => spinCount;
 
     private void OnEnable()
     {
-        spinCount = 0;
+        spinCount = 1;
     }
 
     public void RegisterSpin()
@@ -22,6 +22,6 @@ public class SpinCounter : ScriptableObject
 
     public void ResetCount()
     {
-        spinCount = 0;
+        spinCount = 1;
     }
 }

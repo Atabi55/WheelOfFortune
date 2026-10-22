@@ -16,9 +16,14 @@ public class RevolverController : MonoBehaviour
     [SerializeField] private RewardPool rewardPoolSilver;
     [SerializeField] private RewardPool rewardPoolGold;
 
+    [SerializeField] private SpinCounter spinCounter;
+    [SerializeField] private SpinCountSlider spinCountSlider;
+    [SerializeField] private Sprite[] revolverSprites, indicatorSprites;
+    [SerializeField] private GameObject indicator;
+
     [SerializeField] private Sprite bombSprite;
     [SerializeField] private BombPopupController bombPopup;
-    [SerializeField] private SpinCounter spinCounter;
+    
 
     private bool isSpinning;
     private int bombSlotIndex = 0;
@@ -77,18 +82,26 @@ public class RevolverController : MonoBehaviour
         if (spinCounter.SpinCount == 0)
         {
             currentRewardPool = rewardPoolBronze;
+            gameObject.GetComponent<Image>().sprite = revolverSprites[0];
+            indicator.GetComponent<Image>().sprite = indicatorSprites[0];
         }
         else if (spinCounter.SpinCount % 30 == 0)
         {
             currentRewardPool = rewardPoolGold;
+            gameObject.GetComponent<Image>().sprite = revolverSprites[2];
+            indicator.GetComponent<Image>().sprite = indicatorSprites[2];
         }
         else if (spinCounter.SpinCount % 5 == 0)
         {
             currentRewardPool = rewardPoolSilver;
+            gameObject.GetComponent<Image>().sprite = revolverSprites[1];
+            indicator.GetComponent<Image>().sprite = indicatorSprites[1];
         }
         else
         {
             currentRewardPool = rewardPoolBronze;
+            gameObject.GetComponent<Image>().sprite = revolverSprites[0];
+            indicator.GetComponent<Image>().sprite = indicatorSprites[0];
         }
 
         for (int i = 0; i < childImages.Length; i++)
@@ -101,6 +114,14 @@ public class RevolverController : MonoBehaviour
         }
     }
 
+    public void Reset()
+    {
+        spinCounter.ResetCount();
+        SetRewards();
+        spinCountSlider.UpdateSpinCountSlider();
+        transform.rotation = Quaternion.identity;
+    }
+
     public void Spin()
     {
         // Prevent another spin while the current one is running.
@@ -111,7 +132,7 @@ public class RevolverController : MonoBehaviour
 
         // Choose a random slot: 0 through 7.
         //selectedSlot = Random.Range(0, slotCount);
-        // always spin to bomb for testing purposes
+        // always spin to bomb for testing
         selectedSlot = 3;
         Debug.Log($"Wheel supposed to stop at: {selectedSlot}");
 
@@ -145,6 +166,7 @@ public class RevolverController : MonoBehaviour
         sequence.OnComplete(() =>
         {
             currentSlot = selectedSlot;
+            Debug.Log($"currentslot={currentSlot}, selectedslot={selectedSlot}, bombslotindex={bombSlotIndex}");
 
             if (selectedSlot == bombSlotIndex)
             {
@@ -152,7 +174,9 @@ public class RevolverController : MonoBehaviour
             }
 
             spinCounter.RegisterSpin();
+            spinCountSlider.UpdateSpinCountSlider();
             Debug.Log($"Spin complete! Selected slot: {selectedSlot}");
+            SetRewards();
             isSpinning = false;
         });
 

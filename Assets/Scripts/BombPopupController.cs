@@ -1,4 +1,5 @@
 
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,21 +9,21 @@ public class BombPopupController : MonoBehaviour
     [SerializeField] private GameObject popupPanel;
 
     [Header("Popup Buttons")]
-    [SerializeField] private Button closeButton;
-    [SerializeField] private Button continueButton;
+    [SerializeField] private Button giveupButton;
+    [SerializeField] private Button reviveButton;
+
+    [SerializeField] private RevolverController revolver;
 
     private void Awake()
     {
         if (popupPanel == null)
             popupPanel = gameObject;
 
-        popupPanel.SetActive(false);
+        if (giveupButton != null)
+            giveupButton.onClick.AddListener(OnGiveup);
 
-        if (closeButton != null)
-            closeButton.onClick.AddListener(Hide);
-
-        if (continueButton != null)
-            continueButton.onClick.AddListener(OnContinue);
+        if (reviveButton != null)
+            reviveButton.onClick.AddListener(OnRevive);
     }
 
     public void Show()
@@ -35,20 +36,25 @@ public class BombPopupController : MonoBehaviour
         popupPanel.SetActive(false);
     }
 
-    private void OnContinue()
+    private void OnRevive()
     {
+        Debug.Log("Revive button pressed.");
         Hide();
+    }
 
-        // Add your continue behavior here.
-        Debug.Log("Continue button pressed.");
+    private void OnGiveup()
+    {
+        Debug.Log("Give Up pressed, resetting.");
+        revolver.Reset();
+        Hide();
     }
 
     private void OnDestroy()
     {
-        if (closeButton != null)
-            closeButton.onClick.RemoveListener(Hide);
+        if (giveupButton != null)
+            giveupButton.onClick.RemoveListener(Hide);
 
-        if (continueButton != null)
-            continueButton.onClick.RemoveListener(OnContinue);
+        if (reviveButton != null)
+            reviveButton.onClick.RemoveListener(OnRevive);
     }
 }
