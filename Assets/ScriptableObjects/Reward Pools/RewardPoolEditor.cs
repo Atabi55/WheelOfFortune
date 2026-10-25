@@ -1,4 +1,3 @@
-
 using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
@@ -8,7 +7,6 @@ using System.Linq;
 public class RewardPoolEditor : Editor
 {
     private const string ImageFolder = "Assets/Art/Rewards";
-
     private Sprite[] availableSprites;
 
     private void OnEnable()
@@ -31,17 +29,11 @@ public class RewardPoolEditor : Editor
     {
         serializedObject.Update();
 
-        SerializedProperty rewards =
-            serializedObject.FindProperty("rewards");
+        SerializedProperty rewards = serializedObject.FindProperty("rewards");
+        SerializedProperty amounts = serializedObject.FindProperty("amounts"); // Grab the new amounts array
 
-        EditorGUILayout.LabelField(
-            "Available Reward Images",
-            EditorStyles.boldLabel
-        );
-
-        EditorGUILayout.LabelField(
-            $"Found {availableSprites.Length} sprites in {ImageFolder}"
-        );
+        EditorGUILayout.LabelField("Available Reward Images", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField($"Found {availableSprites.Length} sprites in {ImageFolder}");
 
         if (GUILayout.Button("Refresh Image List"))
             RefreshSprites();
@@ -57,25 +49,23 @@ public class RewardPoolEditor : Editor
             );
         }
 
-        while (rewards.arraySize < 8)
-            rewards.InsertArrayElementAtIndex(rewards.arraySize);
+        // Force both arrays to be exactly 8 elements long
+        while (rewards.arraySize < 8) rewards.InsertArrayElementAtIndex(rewards.arraySize);
+        while (rewards.arraySize > 8) rewards.DeleteArrayElementAtIndex(rewards.arraySize - 1);
 
-        while (rewards.arraySize > 8)
-            rewards.DeleteArrayElementAtIndex(rewards.arraySize - 1);
+        if (amounts != null)
+        {
+            while (amounts.arraySize < 8) amounts.InsertArrayElementAtIndex(amounts.arraySize);
+            while (amounts.arraySize > 8) amounts.DeleteArrayElementAtIndex(amounts.arraySize - 1);
+        }
 
         for (int i = 0; i < 8; i++)
         {
             SerializedProperty reward = rewards.GetArrayElementAtIndex(i);
             Sprite current = reward.objectReferenceValue as Sprite;
 
-            List<GUIContent> options = new List<GUIContent>
-            {
-                new GUIContent("-- None --")
-            };
-
-            options.AddRange(
-                availableSprites.Select(s => new GUIContent(s.name))
-            );
+            List<GUIContent> options = new List<GUIContent> { new GUIContent("-- None --") };
+            options.AddRange(availableSprites.Select(s => new GUIContent(s.name)));
 
             int selectedIndex = current == null
                 ? 0
@@ -86,12 +76,11 @@ public class RewardPoolEditor : Editor
 
             EditorGUILayout.BeginHorizontal();
 
-            EditorGUILayout.LabelField($"Reward {i + 1}", GUILayout.Width(80));
+            // 1. Label
+            EditorGUILayout.LabelField($"Slot {i + 1}", GUILayout.Width(45));
 
-            int newIndex = EditorGUILayout.Popup(
-                selectedIndex,
-                options.ToArray()
-            );
+            // 2. Sprite Dropdown
+            int newIndex = EditorGUILayout.Popup(selectedIndex, options.ToArray());
 
             if (newIndex != selectedIndex)
             {
@@ -100,10 +89,21 @@ public class RewardPoolEditor : Editor
                     : availableSprites[newIndex - 1];
             }
 
+            // 3. Amount Input Field (if amounts array exists)
+            if (amounts != null)
+            {
+                SerializedProperty amountProp = amounts.GetArrayElementAtIndex(i);
+                EditorGUILayout.LabelField("Amt:", GUILayout.Width(30));
+                amountProp.intValue = EditorGUILayout.IntField(amountProp.intValue, GUILayout.Width(50));
+            }
+
             EditorGUILayout.EndHorizontal();
 
+            // Preview the sprite below the selection
             if (current != null)
                 EditorGUILayout.ObjectField(current, typeof(Sprite), false);
+
+            EditorGUILayout.Space(5); // Add a little breathing room between slots
         }
 
         serializedObject.ApplyModifiedProperties();

@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bdbec1a72e1a3ac40b08bd4795be71c9, type: 3}
   m_Name: SpinCounter
   m_EditorClassIdentifier: Assembly-CSharp::SpinCounter
-  spinCount: 0
+  spinCount: 1

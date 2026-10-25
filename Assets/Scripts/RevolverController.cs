@@ -20,13 +20,19 @@ public class RevolverController : MonoBehaviour
     [SerializeField] private SpinCountSlider spinCountSlider;
     [SerializeField] private Sprite[] revolverSprites, indicatorSprites;
     [SerializeField] private GameObject indicator;
+    [SerializeField] private RewardInventoryManager inventoryManager;
+    [SerializeField] private NextMilestoneDisplay milestoneDisplay;
 
     [SerializeField] private Sprite bombSprite;
     [SerializeField] private BombPopupController bombPopup;
     
 
     private bool isSpinning;
+
+    public bool IsSpinning => isSpinning;
     private int bombSlotIndex = 0;
+
+    private RewardPool currentRewardPool;
 
     public int currentSlot { get; private set; } = 0;
     private int selectedSlot = 0;
@@ -78,30 +84,35 @@ public class RevolverController : MonoBehaviour
 
     public void SetRewards()
     {
-        RewardPool currentRewardPool;
-        if (spinCounter.SpinCount == 0)
+        //spinCounter scriptableobject starts at 1
+        if (spinCounter.SpinCount == 1)
         {
-            currentRewardPool = rewardPoolBronze;
-            gameObject.GetComponent<Image>().sprite = revolverSprites[0];
-            indicator.GetComponent<Image>().sprite = indicatorSprites[0];
+            //first spin is silver
+            currentRewardPool = rewardPoolSilver;
+            gameObject.GetComponent<Image>().sprite = revolverSprites[1];
+            indicator.GetComponent<Image>().sprite = indicatorSprites[1];
+            Debug.Log("First spin, silver");
         }
         else if (spinCounter.SpinCount % 30 == 0)
         {
             currentRewardPool = rewardPoolGold;
             gameObject.GetComponent<Image>().sprite = revolverSprites[2];
             indicator.GetComponent<Image>().sprite = indicatorSprites[2];
+            Debug.Log("Gold");
         }
         else if (spinCounter.SpinCount % 5 == 0)
         {
             currentRewardPool = rewardPoolSilver;
             gameObject.GetComponent<Image>().sprite = revolverSprites[1];
             indicator.GetComponent<Image>().sprite = indicatorSprites[1];
+            Debug.Log("Silver");
         }
         else
         {
             currentRewardPool = rewardPoolBronze;
             gameObject.GetComponent<Image>().sprite = revolverSprites[0];
             indicator.GetComponent<Image>().sprite = indicatorSprites[0];
+            Debug.Log("Bronze");
         }
 
         for (int i = 0; i < childImages.Length; i++)
@@ -116,9 +127,23 @@ public class RevolverController : MonoBehaviour
 
     public void Reset()
     {
+        currentSlot = 0;
+        selectedSlot = 0;
+
         spinCounter.ResetCount();
         SetRewards();
-        spinCountSlider.UpdateSpinCountSlider();
+        milestoneDisplay.UpdateMilestones();
+
+        if (spinCountSlider != null)
+        {
+            spinCountSlider.ResetSliderToStart();
+        }
+
+        if (inventoryManager != null)
+        {
+            inventoryManager.ClearInventory();
+        }
+
         transform.rotation = Quaternion.identity;
     }
 
@@ -131,9 +156,9 @@ public class RevolverController : MonoBehaviour
         isSpinning = true;
 
         // Choose a random slot: 0 through 7.
-        //selectedSlot = Random.Range(0, slotCount);
+        selectedSlot = Random.Range(0, slotCount);
         // always spin to bomb for testing
-        selectedSlot = 3;
+        //selectedSlot = 3;
         Debug.Log($"Wheel supposed to stop at: {selectedSlot}");
 
         float slotAngle = 360f / slotCount;
@@ -166,17 +191,27 @@ public class RevolverController : MonoBehaviour
         sequence.OnComplete(() =>
         {
             currentSlot = selectedSlot;
-            Debug.Log($"currentslot={currentSlot}, selectedslot={selectedSlot}, bombslotindex={bombSlotIndex}");
 
-            if (selectedSlot == bombSlotIndex)
+            bool isBomb = (selectedSlot == bombSlotIndex && currentRewardPool == rewardPoolBronze);
+
+            if (isBomb)
             {
                 bombPopup.Show();
+            }
+            else
+            {
+                // Get both the sprite and its corresponding amount
+                Sprite wonSprite = currentRewardPool.rewards[selectedSlot];
+                int wonAmount = currentRewardPool.amounts[selectedSlot];
+
+                // Pass both to the inventory manager
+                inventoryManager.AddReward(wonSprite, wonAmount);
             }
 
             spinCounter.RegisterSpin();
             spinCountSlider.UpdateSpinCountSlider();
-            Debug.Log($"Spin complete! Selected slot: {selectedSlot}");
             SetRewards();
+            milestoneDisplay.UpdateMilestones();
             isSpinning = false;
         });
 
