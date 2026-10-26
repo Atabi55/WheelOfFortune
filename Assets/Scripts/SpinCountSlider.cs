@@ -49,7 +49,6 @@ public class SpinCountSlider : MonoBehaviour
     {
         displayedCount = spinCounter.SpinCount;
 
-        // Update alphas immediately before sliding
         recycler.UpdateAlphas(displayedCount);
 
         float targetX = initialX - (displayedCount - 1) * stepWidth + (currentRecycleCount * stepWidth);

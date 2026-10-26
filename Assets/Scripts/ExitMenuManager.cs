@@ -16,15 +16,12 @@ public class ExitMenuManager : MonoBehaviour
 
     private void Awake()
     {
-        // Ensure the exit panel starts disabled
         if (exitPanel != null)
             exitPanel.SetActive(false);
 
-        // Hook up the always-active main exit button
         if (mainExitButton != null)
             mainExitButton.onClick.AddListener(OnMainExitClicked);
 
-        // Hook up the panel's internal buttons
         if (confirmButton != null)
             confirmButton.onClick.AddListener(OnConfirmClicked);
 
@@ -44,13 +41,11 @@ public class ExitMenuManager : MonoBehaviour
 
     private void OnConfirmClicked()
     {
-        // Reset the game exactly like the bomb popup "give up" button
         if (revolver != null)
         {
             revolver.Reset();
         }
 
-        // Hide/close the exit panel after resetting
         if (exitPanel != null)
             exitPanel.SetActive(false);
     }

@@ -108,7 +108,7 @@ public class NumberRecycler : MonoBehaviour
                 baseColor = multipleOf5Color;
             }
 
-            // Keep base color while maintaining full alpha (UpdateAlphas will handle fading later)
+            // Keep base color while maintaining full alpha
             baseColor.a = 1f;
             text.color = baseColor;
         }
