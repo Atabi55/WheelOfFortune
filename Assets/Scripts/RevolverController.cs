@@ -1,6 +1,7 @@
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class RevolverController : MonoBehaviour
 {
@@ -25,7 +26,7 @@ public class RevolverController : MonoBehaviour
 
     [SerializeField] private Sprite bombSprite;
     [SerializeField] private BombPopupController bombPopup;
-    
+
 
     private bool isSpinning;
 
@@ -37,12 +38,13 @@ public class RevolverController : MonoBehaviour
     public int currentSlot { get; private set; } = 0;
     private int selectedSlot = 0;
 
-    private Image[] childImages;
+    private Image[] childImages; //reward sprite display objects
+    private TMP_Text[] childTexts; //reward amount display objects
 
     private void Awake()
     {
-        //find slot index of bomb in bronze reward pool
-        for(int i = 0; i < slotCount; i++)
+        // Find slot index of bomb in bronze reward pool
+        for (int i = 0; i < slotCount; i++)
         {
             if (rewardPoolBronze.rewards[i] == bombSprite)
                 bombSlotIndex = i;
@@ -59,16 +61,19 @@ public class RevolverController : MonoBehaviour
     private void RewardsSetup()
     {
         childImages = new Image[transform.childCount];
+        childTexts = new TMP_Text[transform.childCount];
 
         for (int i = 0; i < transform.childCount; i++)
         {
-            childImages[i] = transform.GetChild(i).GetComponent<Image>();
+            Transform slotChild = transform.GetChild(i);
+            childImages[i] = slotChild.GetComponent<Image>();
+            childTexts[i] = slotChild.GetComponentInChildren<TMP_Text>();
 
             if (childImages[i] == null)
             {
                 Debug.LogError(
-                    $"Child {i} ({transform.GetChild(i).name}) has no Image component.",
-                    transform.GetChild(i).gameObject
+                    $"Child {i} ({slotChild.name}) has no Image component.",
+                    slotChild.gameObject
                 );
             }
         }
@@ -84,10 +89,8 @@ public class RevolverController : MonoBehaviour
 
     public void SetRewards()
     {
-        //spinCounter scriptableobject starts at 1
         if (spinCounter.SpinCount == 1)
         {
-            //first spin is silver
             currentRewardPool = rewardPoolSilver;
             gameObject.GetComponent<Image>().sprite = revolverSprites[1];
             indicator.GetComponent<Image>().sprite = indicatorSprites[1];
@@ -117,11 +120,27 @@ public class RevolverController : MonoBehaviour
 
         for (int i = 0; i < childImages.Length; i++)
         {
-            childImages[i].sprite =
-                currentRewardPool.rewards[i % currentRewardPool.rewards.Length];
+            int rewardIndex = i % currentRewardPool.rewards.Length;
 
+            // Set the slot sprite
+            childImages[i].sprite = currentRewardPool.rewards[rewardIndex];
             childImages[i].preserveAspect = true;
             childImages[i].color = Color.white;
+
+            // Set the slot amount text
+            if (childTexts[i] != null)
+            {
+                //set empty text if the slot has bomb
+                bool isBronzeBomb = (currentRewardPool == rewardPoolBronze && i == bombSlotIndex);
+                if (isBronzeBomb)
+                {
+                    childTexts[i].text = string.Empty;
+                }
+                else
+                {
+                    childTexts[i].text = currentRewardPool.amounts[rewardIndex].ToString();
+                }
+            }
         }
     }
 
@@ -132,7 +151,6 @@ public class RevolverController : MonoBehaviour
 
         spinCounter.ResetCount();
         SetRewards();
-        milestoneDisplay.UpdateMilestones();
 
         if (spinCountSlider != null)
         {
@@ -149,21 +167,16 @@ public class RevolverController : MonoBehaviour
 
     public void Spin()
     {
-        // Prevent another spin while the current one is running.
         if (isSpinning)
             return;
 
         isSpinning = true;
 
-        // Choose a random slot: 0 through 7.
         selectedSlot = Random.Range(0, slotCount);
-        // always spin to bomb for testing
-        //selectedSlot = 3;
         Debug.Log($"Wheel supposed to stop at: {selectedSlot}");
 
         float slotAngle = 360f / slotCount;
 
-        // Fast spin, then slow down and land on the chosen slot.
         Sequence sequence = DOTween.Sequence();
 
         sequence.Append(
@@ -178,7 +191,7 @@ public class RevolverController : MonoBehaviour
 
         sequence.Append(
             transform.DOLocalRotate(
-                new Vector3(0f,0f,360f * extraRotations +
+                new Vector3(0f, 0f, 360f * extraRotations +
                     slotAngle * ((selectedSlot - currentSlot + slotCount) % slotCount)
                 ),
                 slowSpinDuration,
@@ -200,22 +213,18 @@ public class RevolverController : MonoBehaviour
             }
             else
             {
-                // Get both the sprite and its corresponding amount
                 Sprite wonSprite = currentRewardPool.rewards[selectedSlot];
                 int wonAmount = currentRewardPool.amounts[selectedSlot];
 
-                // Pass both to the inventory manager
                 inventoryManager.AddReward(wonSprite, wonAmount);
             }
 
             spinCounter.RegisterSpin();
             spinCountSlider.UpdateSpinCountSlider();
             SetRewards();
-            milestoneDisplay.UpdateMilestones();
             isSpinning = false;
         });
 
-        // Also release the lock if the tween is killed.
         sequence.OnKill(() =>
         {
             isSpinning = false;
