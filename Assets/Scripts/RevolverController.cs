@@ -151,6 +151,7 @@ public class RevolverController : MonoBehaviour
 
         spinCounter.ResetCount();
         SetRewards();
+        milestoneDisplay.UpdateMilestones();
 
         if (spinCountSlider != null)
         {
@@ -172,6 +173,7 @@ public class RevolverController : MonoBehaviour
 
         isSpinning = true;
 
+        // Choose a random slot: 0 through 7.
         selectedSlot = Random.Range(0, slotCount);
         Debug.Log($"Wheel supposed to stop at: {selectedSlot}");
 
@@ -222,6 +224,7 @@ public class RevolverController : MonoBehaviour
             spinCounter.RegisterSpin();
             spinCountSlider.UpdateSpinCountSlider();
             SetRewards();
+            milestoneDisplay.UpdateMilestones();
             isSpinning = false;
         });
 
