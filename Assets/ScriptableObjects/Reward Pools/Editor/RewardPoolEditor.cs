@@ -30,7 +30,7 @@ public class RewardPoolEditor : Editor
         serializedObject.Update();
 
         SerializedProperty rewards = serializedObject.FindProperty("rewards");
-        SerializedProperty amounts = serializedObject.FindProperty("amounts"); // Grab the new amounts array
+        SerializedProperty amounts = serializedObject.FindProperty("amounts");
 
         EditorGUILayout.LabelField("Available Reward Images", EditorStyles.boldLabel);
         EditorGUILayout.LabelField($"Found {availableSprites.Length} sprites in {ImageFolder}");
@@ -103,7 +103,7 @@ public class RewardPoolEditor : Editor
             if (current != null)
                 EditorGUILayout.ObjectField(current, typeof(Sprite), false);
 
-            EditorGUILayout.Space(5); // Add a little breathing room between slots
+            EditorGUILayout.Space(5); // Add some room between slots
         }
 
         serializedObject.ApplyModifiedProperties();
