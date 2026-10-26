@@ -1,4 +1,4 @@
-Drive link for visuals and example run: https://drive.google.com/drive/folders/1x1IkhL9zyYIE7apzVvwPdYOGluUVu5L-?usp=drive_link
+Drive link for visuals and example run: https://drive.google.com/drive/folders/1x1IkhL9zyYIE7apzVvwPdYOGluUVu5L-?usp=drive_link \n
 Wheel of Fortune demo project.
 Features:
 3 reward pools; Bronze, Silver and Gold.
